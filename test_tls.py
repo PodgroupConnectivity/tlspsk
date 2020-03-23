@@ -7,6 +7,9 @@ def main():
     quit = False
     sock = None
 
+    server = "127.0.0.1"
+    port = 443
+
     def callback(data):
         nonlocal quit, sock
         print(data)
@@ -14,32 +17,42 @@ def main():
             quit = True
 
     psk = bytes.fromhex(
-        "b2c9b9f57ef2fbbba8b624070b301d7f278f1b39c352d5fa849f85a3e7a3f77b"
+        '404142434445464748494a4b4c4d4e4f'
     )
     # session = TLSClientSession(
     #     server_names="127.0.0.1", psk=psk, data_callback=callback, psk_only=True, early_data=b"hoho"
     # )
-    session = TLSClientSession(server_names="127.0.0.1", data_callback=callback)
+    session = TLSClientSession(
+        server_names=server, psk=psk, data_callback=callback, psk_only=True
+    )
+    # session = TLSClientSession(server_names="127.0.0.1", data_callback=callback)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(("127.0.0.1", 1799))
+    sock.connect((server, port))
     sock.sendall(session.pack_client_hello())
 
     parser = session.parser()
+    step = 0
     while not quit:
+        step += 1
         server_data = sock.recv(4096)
+        print("step {0}: {1}".format(step, server_data.hex()))
         parser.send(server_data)
         data = parser.read()
         if data:
+            print("data: {0}".format(data.hex()))
             sock.sendall(data)
 
     sock.sendall(session.pack_close())
     sock.close()
 
+
+
+
     quit = False
     session = session.resumption(data_callback=callback)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(("127.0.0.1", 1799))
+    sock.connect((server, port))
     sock.sendall(session.pack_client_hello())
 
     parser = session.parser()

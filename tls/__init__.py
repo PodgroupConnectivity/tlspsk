@@ -385,7 +385,7 @@ class PskKeyExchangeMode(UInt8Enum):
 class CipherSuite(UInt16Enum):
     TLS_AES_128_GCM_SHA256 = 0x1301
     TLS_AES_256_GCM_SHA384 = 0x1302
-    TLS_CHACHA20_POLY1305_SHA256 = 0x1303
+    # TLS_CHACHA20_POLY1305_SHA256 = 0x1303
     TLS_AES_128_CCM_SHA256 = 0x1304
     TLS_AES_128_CCM_8_SHA256 = 0x1305
 
@@ -413,8 +413,8 @@ class CipherSuite(UInt16Enum):
             return ciphers.TLS_AES_128_CCM_SHA256
         elif value == cls.TLS_AES_128_CCM_8_SHA256:
             return ciphers.TLS_AES_128_CCM_8_SHA256
-        elif value == cls.TLS_CHACHA20_POLY1305_SHA256:
-            return ciphers.TLS_CHACHA20_POLY1305_SHA256
+        # elif value == cls.TLS_CHACHA20_POLY1305_SHA256:
+        #     return ciphers.TLS_CHACHA20_POLY1305_SHA256
         else:
             raise Exception("bad cipher suite")
 
@@ -423,11 +423,11 @@ class CipherSuite(UInt16Enum):
         return pack_all(
             2,
             [
-                cls.TLS_CHACHA20_POLY1305_SHA256,
+                # cls.TLS_CHACHA20_POLY1305_SHA256,
                 cls.TLS_AES_128_GCM_SHA256,
-                cls.TLS_AES_256_GCM_SHA384,
+                # cls.TLS_AES_256_GCM_SHA384,
                 cls.TLS_AES_128_CCM_SHA256,
-                cls.TLS_AES_128_CCM_8_SHA256,
+                # cls.TLS_AES_128_CCM_8_SHA256,
             ],
         )
 
@@ -557,6 +557,7 @@ class TLSClientSession:
         psk: typing.List[bytes] = None,
         psk_only: bool = False,
         psk_label: bytes = b"Client_identity",
+        # psk_label: bytes = b"test_identity",
         psk_identities=None,
         data_callback: typing.Callable = None,
         early_data: bytes = None,
@@ -574,10 +575,15 @@ class TLSClientSession:
         extensions = [
             ExtensionType.server_name_list(server_names),
             ExtensionType.supported_versions_list(),
-            Const.all_signature_algorithms,
-            Const.all_supported_groups,
-            client_hello_key_share_extension(key_share_entry),
+            # Const.all_signature_algorithms,
+            # Const.all_supported_groups,
+            # client_hello_key_share_extension(key_share_entry),
         ]
+        if not self.psk_only:
+            extensions.insert(Const.all_signature_algorithms)
+            extensions.insert(Const.all_supported_groups)
+            extensions.insert(client_hello_key_share_extension(key_share_entry))
+
         if early_data:
             if psk is None:
                 raise Exception("early data should only send with psk support")
@@ -769,10 +775,14 @@ class TLSClientSession:
                 assert (
                     self.peer_handshake.handshake_type == HandshakeType.server_hello
                 ), "expect server hello"
-                peer_pk = self.peer_handshake.extensions[
-                    ExtensionType.key_share
-                ].key_exchange
-                shared_key = crypto_scalarmult(bytes(self.private_key), peer_pk)
+                if self.psk_only:
+                    # TODO: replace 32 with length of hash used
+                    shared_key = bytes([0] * 32)
+                else:
+                    peer_pk = self.peer_handshake.extensions[
+                        ExtensionType.key_share
+                    ].key_exchange
+                    shared_key = crypto_scalarmult(bytes(self.private_key), peer_pk)
                 TLSCipher = self.peer_handshake.cipher_suite
                 self.TLSCipher = TLSCipher
                 key_index = self.peer_handshake.extensions.get(
