@@ -424,7 +424,7 @@ class CipherSuite(UInt16Enum):
             2,
             [
                 # cls.TLS_CHACHA20_POLY1305_SHA256,
-                cls.TLS_AES_128_GCM_SHA256,
+                # cls.TLS_AES_128_GCM_SHA256,
                 # cls.TLS_AES_256_GCM_SHA384,
                 cls.TLS_AES_128_CCM_SHA256,
                 # cls.TLS_AES_128_CCM_8_SHA256,
@@ -556,8 +556,9 @@ class TLSClientSession:
         server_names: typing.List[str] = "",
         psk: typing.List[bytes] = None,
         psk_only: bool = False,
-        psk_label: bytes = b"Client_identity",
+        # psk_label: bytes = b"Client_identity",
         # psk_label: bytes = b"test_identity",
+        psk_label: bytes = b'\x98D\x05R\x90\x816\x986\xf5',
         psk_identities=None,
         data_callback: typing.Callable = None,
         early_data: bytes = None,
@@ -671,6 +672,9 @@ class TLSClientSession:
             legacy_session_id = os.urandom(32)
         else:
             legacy_session_id = b""
+        # SIM DEBUG
+        legacy_session_id = bytes.fromhex('606162636465666768696A6B6C6D6E6F707172737475767778797A7B7C7D7E7F')
+
         if cipher_suites is None:
             cipher_suites = CipherSuite.pack_all()
         else:
@@ -681,11 +685,14 @@ class TLSClientSession:
         randbytes = bytes.fromhex(
             "CF21AD74E59A6111BE1D8C021E65B891C2A211167ABB8C5E079E09E2C8A8339C"
         )
+        # SIM DEBUG
+        simrandom = bytes.fromhex('303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F')
 
         msg = b"".join(
             (
                 legacy_version,
-                randbytes if retry else os.urandom(32),
+                # randbytes if retry else os.urandom(32),
+                simrandom,
                 pack_int(1, legacy_session_id),
                 cipher_suites,
                 b"\x01\x00",  # legacy_compression_methods
@@ -824,10 +831,11 @@ class TLSClientSession:
                             client_finished_data
                         )
                         record = cipher.tls_ciphertext(inner_plaintext)
-                        change_cipher_spec = ContentType.change_cipher_spec.tls_plaintext(
-                            b"\x01"
-                        )
-                        parser.write(change_cipher_spec + record)
+                        # change_cipher_spec = ContentType.change_cipher_spec.tls_plaintext(
+                        #     b"\x01"
+                        # )
+                        # parser.write(change_cipher_spec + record)
+                        parser.write(record)
                         # server application cipher
                         server_secret = key_scheduler.server_application_traffic_secret_0(
                             self.handshake_context
