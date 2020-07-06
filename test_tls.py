@@ -1,7 +1,7 @@
 import socket
 import time
 from tls import TLSClientSession
-
+from datetime import datetime, timedelta, timezone
 
 def main():
 
@@ -10,7 +10,9 @@ def main():
 
     # server = '3.248.203.71'
     # port = 6000
-    server = '3.249.47.6'
+    # server = '3.249.47.6'   34.253.244.76
+    server = '34.253.244.76'
+    # server = '63.34.4.88'
     port = 11111
     # server = "127.0.0.1"
     # port = 443
@@ -52,10 +54,12 @@ def main():
             sock.sendall(data)
             quit = True
 
-    data = bytes('POST /simmap/tp/ HTTP/1.1\x0d\x0aHost: localhost\x0d\x0aContent-Length: 113\x0d\x0a\x0d\x0a' +
+    dt = datetime.utcnow()
+    stime = dt.strftime('%y/%m/%d %H:%M:%S UTC')
+    data = bytes('POST /simmap/tp/ HTTP/1.1\x0d\x0aHost: localhost\x0d\x0aContent-Length: 138\x0d\x0a\x0d\x0a' +
                  '{"iccid": "984405529081369836f5", ' +
                  '"imei": "3a25091040261803", ' +
-                 '"tp": "ffffffff7f9f00dfff03021fe2000000c3fb00070411680071010000001802"}', 'utf-8')
+                 '"tp": "test-from-python:' + stime + '"}', 'utf-8')
     print('data: {0}'.format(data.hex()))
     app_data = session.pack_application_data(data)
     print('app_data: {0}'.format(app_data.hex()))
