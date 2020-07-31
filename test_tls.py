@@ -60,14 +60,19 @@ def main():
                  '{"iccid": "984405529081369836f5", ' +
                  '"imei": "3a25091040261803", ' +
                  '"tp": "test-from-python:' + stime + '"}', 'utf-8')
+    # data = bytes('POST /simmapp/data/ HTTP/1.1\x0d\x0aHost: pod.iot.platform\x0d\x0aContent-Length: 75\x0d\x0a\x0d\x0a' +
+    #              '{"iccid": "984405529081369836f5", ' +
+    #              '"id": "reader #ff01", ' +
+    #              '"data": "ca55a3e5"}', 'utf-8')
     print('data: {0}'.format(data.hex()))
     app_data = session.pack_application_data(data)
     print('app_data: {0}'.format(app_data.hex()))
 
     sock.sendall(app_data)
-    time.sleep(0.5)
-    # resp = sock.recv(4096)
-    # print('resp: {0}'.format(resp.hex()))
+    time.sleep(5)
+    resp = sock.recv(4096)
+    print('resp: {0}'.format(resp.hex()))
+    parser.send(resp)
     sock.sendall(session.pack_close())
     sock.close()
     print('done!')
