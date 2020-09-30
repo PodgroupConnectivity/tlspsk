@@ -44,7 +44,7 @@ def main():
     step = 0
     while not quit:
         step += 1
-        server_data = sock.recv(4096)
+        server_data = sock.recv(10*4096)
         if len(server_data) > 0:
             print("step {0}: {1}".format(step, server_data.hex()))
         parser.send(server_data)
@@ -56,10 +56,19 @@ def main():
 
     dt = datetime.utcnow()
     stime = dt.strftime('%y/%m/%d %H:%M:%S UTC')
-    data = bytes('POST /simmap/tp/ HTTP/1.1\x0d\x0aHost: localhost\x0d\x0aContent-Length: 138\x0d\x0a\x0d\x0a' +
-                 '{"iccid": "984405529081369836f5", ' +
-                 '"imei": "3a25091040261803", ' +
-                 '"tp": "test-from-python:' + stime + '"}', 'utf-8')
+    # data = bytes('POST /simmap/tp/ HTTP/1.1\x0d\x0aHost: localhost\x0d\x0aContent-Length: 138\x0d\x0a\x0d\x0a' +
+    #              '{"iccid": "984405529081369836f5", ' +
+    #              '"imei": "3a25091040261803", ' +
+    #              '"tp": "test-from-python:' + stime + '"}', 'utf-8')
+    data = bytes('POST /simmap/tp/ HTTP/1.1\x0d\x0a' +
+                 'Content-Type: application/json\x0d\x0a' +
+                 'Connection: close\x0d\x0a' +
+                 'User-Agent: PodSender/0.2\x0d\x0a' +
+                 'Host: ' + server + '\x0d\x0a' +
+                 'Content-Length: 126\x0d\x0a\x0d\x0a' +
+                 '{"iccid":"984405529081369836f5",' +
+                 '"imei":"3a75250047633502",' +
+                 '"tp":"ffffffff7f9d00ffbf03021fe200000083eb0000001c4800100000000008"}', 'utf-8')
     # data = bytes('POST /simmapp/data/ HTTP/1.1\x0d\x0aHost: pod.iot.platform\x0d\x0aContent-Length: 75\x0d\x0a\x0d\x0a' +
     #              '{"iccid": "984405529081369836f5", ' +
     #              '"id": "reader #ff01", ' +
