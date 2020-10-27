@@ -71,29 +71,34 @@ def main():
     #              '"tp":"ffffffff7f9d00ffbf03021fe200000083eb0000001c4800100000000008"}', 'utf-8')
 
     # iot pushing telemetry data with POST
-    data = bytes('POST /simapp/data/593839323333172A0F?iccid=984405529081369836f5 HTTP/1.1\x0d\x0a" +'
-                 # 'Host: pod.iot.platform\x0d\x0aContent-Length: 85\x0d\x0a\x0d\x0a' +
-                 # '{"iccid": "984405529081369836f5", ' +
-                 # '"deviceid": "59383932333317a4", ' +
-                 # '"data": "ca55a3e5"}', 'utf-8')
-                 'Host: pod.iot.platform\x0d\x0aContent-Length: 20\x0d\x0a\x0d\x0a' +
-                 '{"data": "ca55a3e5"}', 'utf-8')
+    # data_string = '{"data": "{\'temperature\': 26, \'humidity\': 41}"}'
+    data_string = '{"temperature": 26, "humidity": 41}'
+    # data = bytes('POST /simapp/data/51523143572089723526?iccid=984405529081369836f5 HTTP/1.1\x0d\x0a' +
+    #              'Host: pod.iot.platform\x0d\x0aContent-Length: 85\x0d\x0a\x0d\x0a' +
+    #              '{"iccid": "984405529081369836f5", ' +
+    #              '"deviceid": "59383932333317a4", ' +
+    #              '"data": "ca55a3e5"}', 'utf-8')
+                 # 'Host: pod.iot.platform\x0d\x0a' +
+                 # 'Content-Length: {0}\x0d\x0a\x0d\x0a{1}'.format(len(data_string), data_string), 'utf-8')
     # iot getting config data with GET
-    # data = bytes('GET /simapp/data/593839323333172A0F?iccid=984405529081369836f5 HTTP/1.1\x0d\x0a" +'
-    #              # 'Host: pod.iot.platform\x0d\x0aContent-Length: 85\x0d\x0a\x0d\x0a' +
-    #              # '{"iccid": "984405529081369836f5", ' +
-    #              # '"deviceid": "59383932333317a4", ' +
-    #              # '"data": "ca55a3e5"}', 'utf-8')
-    #              'Host: pod.iot.platform\x0d\x0a\x0d\x0a', 'utf-8')
-    print('data: {0}'.format(data.hex()))
+    data = bytes('GET /iot/ztp/51523143572089723526?iccid=984405529081369836f5 HTTP/1.1\x0d\x0a' +
+                 # 'Host: pod.iot.platform\x0d\x0a\' +
+                 '\x0d\x0a', 'utf-8')
+    print('request: {0}'.format(data))
     app_data = session.pack_application_data(data)
     print('app_data: {0}'.format(app_data.hex()))
 
     sock.sendall(app_data)
-    time.sleep(5)
+    time.sleep(1)
     resp = sock.recv(4096)
     print('resp: {0}'.format(resp.hex()))
     parser.send(resp)
+
+    time.sleep(0.5)
+    resp = sock.recv(4096)
+    print('resp: {0}'.format(resp.hex()))
+    parser.send(resp)
+
     sock.sendall(session.pack_close())
     sock.close()
     print('done!')

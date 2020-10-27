@@ -854,7 +854,7 @@ class TLSClientSession:
                 elif content_type == ContentType.alert:
                     level = AlertLevel.from_value(plaintext[0])
                     description = AlertDescription.from_value(plaintext[1])
-                    raise Alert(level, description)
+                    return Alert(level, description)
                 elif content_type == ContentType.invalid:
                     raise Exception("invalid content type")
                 else:
