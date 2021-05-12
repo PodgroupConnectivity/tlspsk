@@ -1,6 +1,7 @@
+from os import sep
 import socket
 import time
-from tls import TLSClientSession
+from tlspsk import TLSClientSession
 from datetime import datetime, timedelta, timezone
 
 def main():
@@ -24,7 +25,7 @@ def main():
             quit = True
 
     psk = bytes.fromhex(
-        '404142434445464748494a4b4c4d4e4f'
+        '5a53547a59645b585b45405e5a727069'
     )
     # session = TLSClientSession(
     #     server_names="127.0.0.1", psk=psk, data_callback=callback, psk_only=True, early_data=b"hoho"
@@ -81,7 +82,7 @@ def main():
                  # 'Host: pod.iot.platform\x0d\x0a' +
                  # 'Content-Length: {0}\x0d\x0a\x0d\x0a{1}'.format(len(data_string), data_string), 'utf-8')
     # iot getting config data with GET
-    data = bytes('GET /iot/ztp/51523143572089723526?iccid=984405529081369836f5 HTTP/1.1\x0d\x0a' +
+    data = bytes('GET /v1/config/51523143572089723526?iccid=984405529081369836f5 HTTP/1.1\x0d\x0a' +
                  # 'Host: pod.iot.platform\x0d\x0a\' +
                  '\x0d\x0a', 'utf-8')
     print('request: {0}'.format(data))
