@@ -11,9 +11,9 @@ from setuptools import setup
 REQUIREMENTS = open('requirements.txt', 'rt').read().splitlines()
 LONG_DESCRIPTION = open('README.md', 'rt').read()
 
-setup(name='tlspsk-client',
+setup(name='tlspsk',
       version='0.1.0',
-      description='TLSv1.3 client fork configured as PSK fork from tls1.3 client',
+      description='TLSv1.3 client fork, configured as PSK fork from tls1.3 client',
       long_description=LONG_DESCRIPTION,
       author='Kostiantyn Chertov',
       author_email='kostiantyn.chertov@podgroup.com',
