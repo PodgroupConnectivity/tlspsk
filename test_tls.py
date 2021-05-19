@@ -50,7 +50,7 @@ def main():
     stime = dt.strftime('%y/%m/%d %H:%M:%S UTC')
 
     # iot pushing telemetry data with POST
-    data_string = '{"temperature": 24.15}'
+    data_string = '{"temperature": 36.70}'
     data = bytes('POST /v1/data/51523143572089723527?iccid={0} HTTP/1.1\x0d\x0a'.format(iccid.hex()) +
                  'Host: pod.iot.platform\x0d\x0a' +
                  'Content-Length: {0}\x0d\x0a\x0d\x0a{1}'.format(len(data_string), data_string), 'utf-8')
@@ -58,6 +58,7 @@ def main():
     # iot getting config data with GET
     # data = bytes('GET /v1/config/51523143572089723526?iccid=984405529081369836f5 HTTP/1.1\x0d\x0a' +
     #              '\x0d\x0a', 'utf-8')
+
     print('request: {0}'.format(data))
     app_data = session.pack_application_data(data)
     print('app_data: {0}'.format(app_data.hex()))
